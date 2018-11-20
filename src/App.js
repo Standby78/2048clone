@@ -47,11 +47,15 @@ class App extends Component {
       if(event.key === "ArrowUp"){
         for(let i=0;i<4;i++){
           let subMatrix=[tempMatrix[i],tempMatrix[i+4],tempMatrix[i+8],tempMatrix[i+12]];
+          let offset = 0;
           for(let a=0;a<subMatrix.length;a++){
-            if(subMatrix[a]!==0)
-              translateMatrix[i+a*4]=a*100;
+            if(subMatrix[a]!==0){
+              translateMatrix[i+a*4]=a*100-offset*100;
+              offset++;
+            }
+            //offset++;
           }
-          console.log("translate - ",translateMatrix)
+          //console.log("translate - ",translateMatrix)
           subMatrix=subMatrix.filter((x)=> x>0);
           for(let e=0;e<subMatrix.length;e++){
             
@@ -147,11 +151,13 @@ class App extends Component {
             newMatrix[index]=2;
             this.setState({translate:translateMatrix});
             this.setState({direction:'up'});
+           // this.setState({matrix: newMatrix});
+            //for animation
             setTimeout(() => {
               translateMatrix=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
               this.setState({translate:translateMatrix});
               this.setState({matrix: newMatrix})
-            }, 400);
+            }, 200);
           }
         }
       }
