@@ -1,8 +1,26 @@
 import React from 'react';
 
-const Block = (props) => (
-	<div className="block" style={{transform:`translate(0px,-${props.translate}%)`}}>
+const Block = (props) => {
+	let x='';
+	if(props.keyPressed==='left')		
+		x='-'+props.translate;
+	else if(props.keyPressed==='right')
+		x=props.translate;
+	else
+		x='0';
+	let y='';
+	if(props.keyPressed==='up')		
+		y='-'+props.translate;
+	else if(props.keyPressed==='down')
+		y=props.translate;
+	else
+		y='0';
+
+	return (
+	<div className="block" style={{
+		transform:`translate(${x}%,${y}%)`
+	}}>
 		<span className="block-number">{(props.value===0)?'':props.value}</span>
 	</div>
-)
+)}
 export default Block;

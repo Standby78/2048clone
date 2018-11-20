@@ -6,16 +6,16 @@ class App extends Component {
   constructor(props){
     super(props);
     this.state={matrix:[
-        0,0,0,0,
-        0,0,0,0,
-        0,0,0,0,
-        0,0,0,0,
+        4,0,0,0,
+        2,2,4,2,
+        2,0,0,0,
+        4,0,0,0,
       ],gameover:false,translate:[
         0,0,0,0,
         0,0,0,0,
         0,0,0,0,
         0,0,0,0,
-      ],direction:'none'};
+      ],direction:'none', key:'none'};
       this.key=this.key.bind(this);
       this.focusInput = React.createRef();
   }
@@ -23,7 +23,7 @@ class App extends Component {
     this.focusInput.current.focus();
     let newMatrix=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     newMatrix[Math.floor(Math.random()*16)]=2;
-    this.setState({matrix: newMatrix});
+    //this.setState({matrix: newMatrix});
 
   }
   componentDidUpdate(prevProps, prevState) {
@@ -38,6 +38,7 @@ class App extends Component {
   // test if move is possible, shouldn't be if direction border is full - done 19.11.
   // try to refractor
   // other key cause restart - done 19.11.
+  // have bug when adding numbers to the right: the addition works in 2 steps, not just one
   key(event) {
     if(this.state.gameover===false){
       let keypress=false;
@@ -53,9 +54,7 @@ class App extends Component {
               translateMatrix[i+a*4]=a*100-offset*100;
               offset++;
             }
-            //offset++;
           }
-          //console.log("translate - ",translateMatrix)
           subMatrix=subMatrix.filter((x)=> x>0);
           for(let e=0;e<subMatrix.length;e++){
             
@@ -73,16 +72,25 @@ class App extends Component {
             newMatrix[e*4+i]=subMatrix[e]
           }
         }
+        this.setState({key:'up'});
         keypress=true;
       }
       if(event.key === "ArrowDown"){
         for(let i=0;i<4;i++){
           let subMatrix=[tempMatrix[i],tempMatrix[i+4],tempMatrix[i+8],tempMatrix[i+12]];
+          let offset = 0;
+          for(let a=3;a>=0;a--){
+            if(subMatrix[a]!==0){
+              translateMatrix[i+a*4]=(4-a-1)*100-offset*100;
+              offset++;
+            }
+          }
           subMatrix=subMatrix.filter((x)=> x>0);
           for(let e=subMatrix.length-1;e>0;e--){
             if(subMatrix[e]===subMatrix[e-1]){
               subMatrix[e]=subMatrix[e]*2;
               subMatrix.splice(e-1,1)
+              e--;
             }
           }
           if(subMatrix.length<4)
@@ -93,11 +101,19 @@ class App extends Component {
               newMatrix[e*4+i]=subMatrix[e]
           }
         }
+        this.setState({key:'down'});
         keypress=true;
       }
       if(event.key === "ArrowLeft"){
         for(let row=0;row<4;row++){
           let subMatrix=tempMatrix.slice(row*4,row*4+4);
+          let offset = 0;
+          for(let a=0;a<subMatrix.length;a++){
+            if(subMatrix[a]!==0){
+              translateMatrix[row*4+a]=a*100-offset*100;
+              offset++;
+            }
+          }
           subMatrix=subMatrix.filter((x)=> x>0);
           for(let e=0;e<subMatrix.length;e++){
             if(subMatrix[e]===subMatrix[e+1]){
@@ -113,16 +129,25 @@ class App extends Component {
           for(let i=0; i<4;i++)
             newMatrix[i+row*4]=subMatrix[i]
         }
+        this.setState({key:'left'});
         keypress=true;
       }
       if(event.key === "ArrowRight"){
         for(let row=0;row<4;row++){
           let subMatrix=tempMatrix.slice(row*4,row*4+4);
+          let offset = 0;
+          for(let a=3;a>=0;a--){
+            if(subMatrix[a]!==0){
+              translateMatrix[row*4+a]=(4-a-1)*100-offset*100;
+              offset++;
+            }
+          }
           subMatrix=subMatrix.filter((x)=> x>0);
           for(let e=subMatrix.length-1;e>0;e--){
             if(subMatrix[e]===subMatrix[e-1]){
               subMatrix[e]=subMatrix[e]*2;
               subMatrix.splice(e-1,1)
+              e--;
             }
           }
           if(subMatrix.length<4){
@@ -133,6 +158,7 @@ class App extends Component {
           for(let i=0; i<4;i++)
             newMatrix[i+row*4]=subMatrix[i]
         }
+        this.setState({key:'right'});
         keypress=true;
       }
       if(keypress){
@@ -164,7 +190,7 @@ class App extends Component {
     }
   }
   render() {
-    let Matrix=this.state.matrix.map((block, index) => <Block value={block} key={index} translate={this.state.translate[index]}/>);
+    let Matrix=this.state.matrix.map((block, index) => <Block value={block} key={index} keyPressed={this.state.key} translate={this.state.translate[index]}/>);
     return (
       <div tabIndex="0" ref={this.focusInput} className="App" onKeyDown={(e)=>this.key(e)}>
         <div className="matrix-container">
