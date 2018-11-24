@@ -15,7 +15,7 @@ const Block = (props) => {
 		y=props.translate;
 	else
 		y='0';
-	let animStyle={ transition: '2s ease-out', transform:`translate(${x}%,${y}%)`};
+	let animStyle={ transition: '0.2s ease-out', transform:`translate(${x}%,${y}%)`};
 	if(props.anim===0)
 		delete animStyle.transition;
 	return (

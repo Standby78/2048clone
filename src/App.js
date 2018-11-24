@@ -9,7 +9,7 @@ class App extends Component {
     this.state={matrix:[
         0,0,0,0,
         0,0,0,0,
-        8,8,16,32,
+        0,0,0,0,
         0,0,0,0,
       ],gameover:false,translate:[
         0,0,0,0,
@@ -23,9 +23,9 @@ class App extends Component {
   }
   componentDidMount() {
     this.focusInput.current.focus();
-    /*let newMatrix=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+    let newMatrix=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
     newMatrix[Math.floor(Math.random()*16)]=2;
-    this.setState({matrix: newMatrix});*/
+    this.setState({matrix: newMatrix});
 
   }
   componentDidUpdate(prevProps, prevState) {
@@ -41,7 +41,10 @@ class App extends Component {
   // try to refractor
   // other key cause restart - done 19.11.
   // have bug when adding numbers to the right: the addition works in 2 steps, not just one - done
-  // fix css transitions, slide only on same or free cells
+  // fix css transitions, slide only on same or free cells - done 24.11.
+  // calculate if there are possible moves by looking at neighbouring array cells -> for gameover
+  // get rid of this: index.js:1452 Warning: This synthetic event is reused for performance reasons. If you're seeing this, you're accessing the method `key` on a released/nullified synthetic event. This is a no-op function. If you must keep the original synthetic event around, use event.persist(). See https://fb.me/react-event-pooling for more information.
+
   key(event) {
     if(this.state.gameover===false){
       let keypress=false;
@@ -55,12 +58,10 @@ class App extends Component {
           let offset = 0;
           for(let a=0;a<subMatrix.length;a++){
             if(subMatrix[a]!==0){
-              //translateMatrix[i+a*4]=a*100-offset*100;
               tempTranslate[a]=a*100-offset*100;
               offset++;
             }
           }
-          console.log(tempTranslate)
           for(let a=0;a<subMatrix.length;a++){
             translateMatrix[i+a*4]=tempTranslate[a];
           }
@@ -105,7 +106,6 @@ class App extends Component {
           for(let a=0;a<subMatrix.length;a++){
             translateMatrix[i+a*4]=tempTranslate[a];
           }
-          console.log('now',tempTranslate,translateMatrix)
           for(let e=0;e<subMatrix.length;e++){
             for(let a=1+e;a<subMatrix.length;a++){
               if(subMatrix[a]!==0){
@@ -185,21 +185,33 @@ class App extends Component {
         for(let row=0;row<4;row++){
           let tempTranslate=[0,0,0,0]
           let subMatrix=tempMatrix.slice(row*4,row*4+4);
-          let offset = 0;
-          for(let a=3;a>=0;a--){
-            if(subMatrix[a]!==0){
-              translateMatrix[row*4+a]=(4-a-1)*100-offset*100;
+          let offset=0;
+          for(let a=0;a<=subMatrix.length;a++){
+            if(subMatrix[subMatrix.length-a]!==0){
+              tempTranslate[subMatrix.length-a]=a*100-offset*100;
               offset++;
             }
           }
-          subMatrix=subMatrix.filter((x)=> x>0);
-          for(let e=subMatrix.length-1;e>0;e--){
-            if(subMatrix[e]===subMatrix[e-1]){
-              subMatrix[e]=subMatrix[e]*2;
-              subMatrix.splice(e-1,1)
-              e--;
+          for(let a=0;a<subMatrix.length;a++){
+            translateMatrix[row*4+a]=tempTranslate[a];
+          }
+          for(let e=subMatrix.length-1;e>=0;e--){
+            for(let a=e-1;a>=0;a--){
+              if(subMatrix[a]!==0){
+                if(subMatrix[e]===subMatrix[a]){
+                  subMatrix[e]*=2;
+                  subMatrix[a]=0;
+                  translateMatrix[row*4+a]+=100;
+                  for(a-1;a>=0;a--){
+                    if(subMatrix[a]!==0)
+                      translateMatrix[row*4+a]+=100;
+                  }
+                }
+                a=-1;
+              }
             }
           }
+          subMatrix=subMatrix.filter((x)=> x>0);
           if(subMatrix.length<4){
             for(;subMatrix.length<4;){
               subMatrix.unshift(0);
@@ -228,7 +240,7 @@ class App extends Component {
             //for animation
             setTimeout(function (){
               this.setState({translate:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], matrix:newMatrix, anim:0});
-            }.bind(this), 2000);
+            }.bind(this), 200);
           }
         }
       }
