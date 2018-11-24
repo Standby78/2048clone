@@ -15,11 +15,11 @@ const Block = (props) => {
 		y=props.translate;
 	else
 		y='0';
-
+	let animStyle={ transition: '2s ease-out', transform:`translate(${x}%,${y}%)`};
+	if(props.anim===0)
+		delete animStyle.transition;
 	return (
-	<div className="block" style={{
-		transform:`translate(${x}%,${y}%)`
-	}}>
+	<div className="block" style={animStyle}>
 		<span className="block-number">{(props.value===0)?'':props.value}</span>
 	</div>
 )}

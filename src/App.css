@@ -37,11 +37,10 @@
   margin:5px;
   height:25%;
   text-align:center;
-  transition: 0.2s ease-out;
 }
 .block-number{
   font-size: 9rem;
-  transition: 2s ease-in-out;
+  transition: 0.2s ease-in-out;
 }
 @keyframes App-logo-spin {
   from {
