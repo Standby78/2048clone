@@ -3,6 +3,8 @@ import './App.css';
 import Block from './block';
 import { throttle } from 'lodash';
 
+const animTime = 1.2;
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -15,7 +17,7 @@ class App extends Component {
         };
         this.key = this.key.bind(this);
         this.focusInput = React.createRef();
-        this.throttledKey = throttle(this.key, 200);
+        this.throttledKey = throttle(this.key, animTime*1000);
     }
     componentDidMount() {
         this.focusInput.current.focus();
@@ -46,18 +48,18 @@ class App extends Component {
             let keypress = false;
             let newMatrix = Array.from(Array(16), () => 0);
             let translateMatrix = Array.from(Array(16), () => 0);
-            let tempMatrix = this.state.matrix;
+            const tempMatrix = this.state.matrix;
             if (event.key === "ArrowUp") {
                 for (let i = 0; i < 4; i++) {
                     let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = [tempMatrix[i], tempMatrix[i + 4], tempMatrix[i + 8], tempMatrix[i + 12]];
                     let offset = 0;
-                    for (let a = 0; a < subMatrix.length; a++) {
-                        if (subMatrix[a] !== 0) {
-                            tempTranslate[a] = a * 100 - offset * 100;
+                    subMatrix.map((val,index) => {
+                      if(val!==0){
+                        tempTranslate[index] = index * 100 - offset * 100;
                             offset++;
-                        }
-                    }
+                      }
+                    })
                     tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
@@ -77,9 +79,8 @@ class App extends Component {
                     }
                     subMatrix = subMatrix.filter((x) => x > 0);
                     if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;) {
+                        for (; subMatrix.length < 4;)
                             subMatrix.push(0);
-                        }
                     }
                     subMatrix.forEach((val, index) => newMatrix[index * 4 + i] = val)
                 }
@@ -91,19 +92,20 @@ class App extends Component {
                     let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = [tempMatrix[i + 12], tempMatrix[i + 8], tempMatrix[i + 4], tempMatrix[i]];
                     let offset = 0;
-                    for (let a = 0; a < subMatrix.length; a++) {
-                        if (subMatrix[a] !== 0) {
-                            tempTranslate[a] = a * 100 - offset * 100;
+                    subMatrix.map((val,index) => {
+                      if(val!==0){
+                        tempTranslate[index] = index * 100 - offset * 100;
                             offset++;
-                        }
-                    }
+                      }
+                    })
                     tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
                             if (subMatrix[a] !== 0) {
                                 if (subMatrix[e] === subMatrix[a]) {
-                                    subMatrix[a] *= 2;
-                                    subMatrix[e] = 0;
+                                    subMatrix[e] *= 2;
+                                    subMatrix[a] = 0;
+                                    tempTranslate[a] += 100;
                                     for (a; a < subMatrix.length; a++) {
                                         if (subMatrix[a] !== 0)
                                             tempTranslate[a] += 100;
@@ -113,18 +115,12 @@ class App extends Component {
                             }
                         }
                     }
-                    let tempRotated = [];
-                    for (let a = 0; a < tempTranslate.length; a++)
-                        tempRotated[3 - a] = tempTranslate[a]
-                    tempTranslate = tempRotated
-                    for (let a = 0; a < subMatrix.length; a++) {
-                        translateMatrix[i + a * 4] = tempTranslate[a];
-                    }
+                    tempTranslate.reverse()
+                    tempTranslate.map((val, index)=> translateMatrix[i + index*4]=val)
                     subMatrix = subMatrix.filter((x) => x > 0);
                     if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;) {
+                        for (; subMatrix.length < 4;)
                             subMatrix.push(0);
-                        }
                     }
                     subMatrix.forEach((val, index) => newMatrix[(3 - index) * 4 + i] = val)
                 }
@@ -136,13 +132,12 @@ class App extends Component {
                     let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = tempMatrix.slice(row * 4, row * 4 + 4);
                     let offset = 0;
-
-                    for (let a = 0; a < subMatrix.length; a++) {
-                        if (subMatrix[a] !== 0) {
-                            tempTranslate[a] = a * 100 - offset * 100;
+                    subMatrix.map((val,index) => {
+                      if(val!==0){
+                        tempTranslate[index] = index * 100 - offset * 100;
                             offset++;
-                        }
-                    }
+                      }
+                    })
                     tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
@@ -162,9 +157,8 @@ class App extends Component {
                     }
                     subMatrix = subMatrix.filter((x) => x > 0);
                     if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;) {
+                        for (; subMatrix.length < 4;)
                             subMatrix.push(0);
-                        }
                     }
                     subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
@@ -176,12 +170,15 @@ class App extends Component {
                     let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = tempMatrix.slice(row * 4, row * 4 + 4);
                     let offset = 0;
-                    for (let a = 0; a <= subMatrix.length; a++) {
-                        if (subMatrix[subMatrix.length - a] !== 0) {
-                            tempTranslate[subMatrix.length - a] = a * 100 - offset * 100;
+                    subMatrix.reverse();
+                    subMatrix.map((val,index) => {
+                      if(val!==0){
+                        tempTranslate[index] = index * 100 - offset * 100;
                             offset++;
-                        }
-                    }
+                      }
+                    })
+                    subMatrix.reverse();
+                    tempTranslate.reverse();
                     tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
                     for (let e = subMatrix.length - 1; e >= 0; e--) {
                         for (let a = e - 1; a >= 0; a--) {
@@ -201,9 +198,8 @@ class App extends Component {
                     }
                     subMatrix = subMatrix.filter((x) => x > 0);
                     if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;) {
+                        for (; subMatrix.length < 4;)
                             subMatrix.unshift(0);
-                        }
                     }
                     subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
@@ -228,14 +224,14 @@ class App extends Component {
                         //for animation
                         setTimeout(function() {
                             this.setState({ translate: Array.from(Array(16), () => 0), matrix: newMatrix, anim: 0 });
-                        }.bind(this), 200);
+                        }.bind(this), animTime*1000);
                     }
                 }
             }
         }
     }
     render() {
-        let Matrix = this.state.matrix.map((block, index) => <Block value={block} key={index} anim={this.state.anim} keyPressed={this.state.key} translate={this.state.translate[index]}/>);
+        let Matrix = this.state.matrix.map((block, index) => <Block time={animTime} value={block} key={index} anim={this.state.anim} keyPressed={this.state.key} translate={this.state.translate[index]}/>);
         return (
             <div tabIndex="0" ref={this.focusInput} className="App" onKeyDown={this.throttledKey}>
         <div className="matrix-container">

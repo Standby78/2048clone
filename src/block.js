@@ -1,21 +1,17 @@
 import React from 'react';
 
 const Block = (props) => {
-	let x='';
+	let x='0';
 	if(props.keyPressed==='left')		
 		x='-'+props.translate;
 	else if(props.keyPressed==='right')
 		x=props.translate;
-	else
-		x='0';
-	let y='';
+	let y='0';
 	if(props.keyPressed==='up')		
 		y='-'+props.translate;
 	else if(props.keyPressed==='down')
 		y=props.translate;
-	else
-		y='0';
-	let animStyle={ transition: '0.2s ease-out', transform:`translate(${x}%,${y}%)`};
+	let animStyle={ transition: `${props.time}s ease-out`, transform:`translate(${x}%,${y}%)`};
 	if(props.anim===0)
 		delete animStyle.transition;
 	return (
