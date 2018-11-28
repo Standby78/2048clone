@@ -78,10 +78,7 @@ class App extends Component {
                         }
                     }
                     subMatrix = subMatrix.filter((x) => x > 0);
-                    if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;)
-                            subMatrix.push(0);
-                    }
+                    subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[index * 4 + i] = val)
                 }
                 this.setState({ key: 'up' });
@@ -118,10 +115,7 @@ class App extends Component {
                     tempTranslate.reverse()
                     tempTranslate.map((val, index)=> translateMatrix[i + index*4]=val)
                     subMatrix = subMatrix.filter((x) => x > 0);
-                    if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;)
-                            subMatrix.push(0);
-                    }
+                    subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[(3 - index) * 4 + i] = val)
                 }
                 this.setState({ key: 'down' });
@@ -156,10 +150,7 @@ class App extends Component {
                         }
                     }
                     subMatrix = subMatrix.filter((x) => x > 0);
-                    if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;)
-                            subMatrix.push(0);
-                    }
+                    subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
                 this.setState({ key: 'left' });
@@ -213,11 +204,9 @@ class App extends Component {
                         index = Math.floor(Math.random() * 16);
                     }
                     let same = true;
-                    for (let i = 0; i < newMatrix.length; i++) {
-                        if (newMatrix[i] !== tempMatrix[i]) {
-                            same = false;
-                        }
-                    }
+                    newMatrix.map((val, index) => {
+                      if(val!==tempMatrix[index]) same = false
+                    })
                     if (same === false) {
                         newMatrix[index] = 2;
                         this.setState({ translate: translateMatrix, direction: 'up', anim: 1 });
