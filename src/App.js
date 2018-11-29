@@ -9,7 +9,7 @@ class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            matrix: Array.from(Array(16), () => 0),
+            matrix: Array(16).fill(0),
             gameover: false,
             translate: Array.from(Array(16), () => 0),
             direction: 'none',
@@ -42,7 +42,8 @@ class App extends Component {
     // fix css transitions, slide only on same or free cells - done 24.11.
     // calculate if there are possible moves by looking at neighbouring array cells -> for gameover
     // get rid of this: index.js:1452 Warning: This synthetic event is reused for performance reasons. If you're seeing this, you're accessing the method `key` on a released/nullified synthetic event. This is a no-op function. If you must keep the original synthetic event around, use event.persist(). See https://fb.me/react-event-pooling for more information.
-
+    // array.fill for empty arrays with zeroes
+    // got a new problem with adding ajecent fields
     key(event) {
         if (this.state.gameover === false) {
             let keypress = false;
@@ -60,23 +61,23 @@ class App extends Component {
                             offset++;
                       }
                     })
-                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
                             if (subMatrix[a] !== 0) {
                                 if (subMatrix[e] === subMatrix[a]) {
                                     subMatrix[e] *= 2;
                                     subMatrix[a] = 0;
-                                    translateMatrix[i + (a) * 4] += 100;
+                                    tempTranslate[a] += 100;
                                     for (a + 1; a < subMatrix.length; a++) {
                                         if (subMatrix[a] !== 0)
-                                            translateMatrix[i + (a) * 4] += 100;
+                                            tempTranslate[a] += 100;
                                     }
                                 }
                                 a = subMatrix.length;
                             }
                         }
                     }
+                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
                     subMatrix = subMatrix.filter((x) => x > 0);
                     subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[index * 4 + i] = val)
@@ -95,7 +96,7 @@ class App extends Component {
                             offset++;
                       }
                     })
-                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
+//                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
                             if (subMatrix[a] !== 0) {
@@ -132,23 +133,24 @@ class App extends Component {
                             offset++;
                       }
                     })
-                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
+                    //tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
                     for (let e = 0; e < subMatrix.length; e++) {
                         for (let a = 1 + e; a < subMatrix.length; a++) {
                             if (subMatrix[a] !== 0) {
                                 if (subMatrix[e] === subMatrix[a]) {
                                     subMatrix[e] *= 2;
                                     subMatrix[a] = 0;
-                                    translateMatrix[row * 4 + a] += 100;
-                                    for (a + 1; a < subMatrix.length; a++) {
+                                    tempTranslate[a] += 100;
+                                    for (a; a < subMatrix.length; a++) {
                                         if (subMatrix[a] !== 0)
-                                            translateMatrix[row * 4 + a] += 100;
+                                            tempTranslate[a] += 100;
                                     }
                                 }
                                 a = subMatrix.length;
                             }
                         }
                     }
+                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
                     subMatrix = subMatrix.filter((x) => x > 0);
                     subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
@@ -169,29 +171,26 @@ class App extends Component {
                       }
                     })
                     subMatrix.reverse();
-                    tempTranslate.reverse();
-                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
-                    for (let e = subMatrix.length - 1; e >= 0; e--) {
-                        for (let a = e - 1; a >= 0; a--) {
+                    for (let e = 0; e < subMatrix.length; e++) {
+                        for (let a = 1 + e; a < subMatrix.length; a++) {
                             if (subMatrix[a] !== 0) {
                                 if (subMatrix[e] === subMatrix[a]) {
                                     subMatrix[e] *= 2;
                                     subMatrix[a] = 0;
-                                    translateMatrix[row * 4 + a] += 100;
-                                    for (a - 1; a >= 0; a--) {
+                                    tempTranslate[a] += 100;
+                                    for (a; a < subMatrix.length; a++) {
                                         if (subMatrix[a] !== 0)
-                                            translateMatrix[row * 4 + a] += 100;
+                                            tempTranslate[a] += 100;
                                     }
                                 }
-                                a = -1;
+                                a = subMatrix.length;
                             }
                         }
                     }
+                    tempTranslate.reverse();
+                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
                     subMatrix = subMatrix.filter((x) => x > 0);
-                    if (subMatrix.length < 4) {
-                        for (; subMatrix.length < 4;)
-                            subMatrix.unshift(0);
-                    }
+                    subMatrix.fill(0,2,4);
                     subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
                 this.setState({ key: 'right' });
