@@ -3,7 +3,7 @@ import './App.css';
 import Block from './block';
 import { throttle } from 'lodash';
 
-const animTime = 1.2;
+const animTime = 0.2;
 
 class App extends Component {
     constructor(props) {
@@ -11,17 +11,17 @@ class App extends Component {
         this.state = {
             matrix: Array(16).fill(0),
             gameover: false,
-            translate: Array.from(Array(16), () => 0),
+            translate: Array(16).fill(0),
             direction: 'none',
             key: 'none'
         };
         this.key = this.key.bind(this);
         this.focusInput = React.createRef();
-        this.throttledKey = throttle(this.key, animTime*1000);
+        this.throttledKey = throttle(this.key, animTime * 1000);
     }
     componentDidMount() {
         this.focusInput.current.focus();
-        let newMatrix = Array.from(Array(16), () => 0);
+        let newMatrix = Array(16).fill(0);
         newMatrix[Math.floor(Math.random() * 16)] = 2;
         this.setState({ matrix: newMatrix });
 
@@ -35,15 +35,42 @@ class App extends Component {
         }
 
     }
+    calcTransform(subMatrix) {
+        let tempTranslate = [0, 0, 0, 0]
+        let offset = 0;
+        subMatrix.map((val, index) => {
+            if (val !== 0) {
+                tempTranslate[index] = index * 100 - offset * 100;
+                offset++;
+            }
+        })
+        for (let e = 0; e < subMatrix.length; e++) {
+            for (let a = 1 + e; a < subMatrix.length; a++) {
+                if (subMatrix[a] !== 0) {
+                    if (subMatrix[e] === subMatrix[a]) {
+                        subMatrix[e] *= 2;
+                        subMatrix[a] = 0;
+                        tempTranslate[a] += 100;
+                        for (a + 1; a < subMatrix.length; a++) {
+                            if (subMatrix[a] !== 0)
+                                tempTranslate[a] += 100;
+                        }
+                    }
+                    a = subMatrix.length;
+                }
+            }
+        }
+        return { 'temptranslate': tempTranslate, 'submatrix': subMatrix };
+    }
     // test if move is possible, shouldn't be if direction border is full - done 19.11.
-    // try to refractor
+    // try to refractor - done 30.11.
     // other key cause restart - done 19.11.
     // have bug when adding numbers to the right: the addition works in 2 steps, not just one - done
     // fix css transitions, slide only on same or free cells - done 24.11.
     // calculate if there are possible moves by looking at neighbouring array cells -> for gameover
     // get rid of this: index.js:1452 Warning: This synthetic event is reused for performance reasons. If you're seeing this, you're accessing the method `key` on a released/nullified synthetic event. This is a no-op function. If you must keep the original synthetic event around, use event.persist(). See https://fb.me/react-event-pooling for more information.
-    // array.fill for empty arrays with zeroes
-    // got a new problem with adding ajecent fields
+    // got a new problem with adding ajecent fields - done 30.11.
+
     key(event) {
         if (this.state.gameover === false) {
             let keypress = false;
@@ -52,146 +79,56 @@ class App extends Component {
             const tempMatrix = this.state.matrix;
             if (event.key === "ArrowUp") {
                 for (let i = 0; i < 4; i++) {
-                    let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = [tempMatrix[i], tempMatrix[i + 4], tempMatrix[i + 8], tempMatrix[i + 12]];
-                    let offset = 0;
-                    subMatrix.map((val,index) => {
-                      if(val!==0){
-                        tempTranslate[index] = index * 100 - offset * 100;
-                            offset++;
-                      }
-                    })
-                    for (let e = 0; e < subMatrix.length; e++) {
-                        for (let a = 1 + e; a < subMatrix.length; a++) {
-                            if (subMatrix[a] !== 0) {
-                                if (subMatrix[e] === subMatrix[a]) {
-                                    subMatrix[e] *= 2;
-                                    subMatrix[a] = 0;
-                                    tempTranslate[a] += 100;
-                                    for (a + 1; a < subMatrix.length; a++) {
-                                        if (subMatrix[a] !== 0)
-                                            tempTranslate[a] += 100;
-                                    }
-                                }
-                                a = subMatrix.length;
-                            }
-                        }
-                    }
-                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
-                    subMatrix = subMatrix.filter((x) => x > 0);
-                    subMatrix.fill(0,2,4);
-                    subMatrix.forEach((val, index) => newMatrix[index * 4 + i] = val)
+                    let transformed = this.calcTransform(subMatrix);
+                    transformed.temptranslate.map((val, index) => translateMatrix[i + index * 4] = val)
+                    transformed.submatrix = transformed.submatrix.filter((x) => x > 0);
+                    for (; transformed.submatrix.length < 4;)
+                        transformed.submatrix.push(0);
+                    transformed.submatrix.forEach((val, index) => newMatrix[index * 4 + i] = val)
                 }
                 this.setState({ key: 'up' });
                 keypress = true;
             }
             if (event.key === "ArrowDown") {
                 for (let i = 0; i < 4; i++) {
-                    let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = [tempMatrix[i + 12], tempMatrix[i + 8], tempMatrix[i + 4], tempMatrix[i]];
-                    let offset = 0;
-                    subMatrix.map((val,index) => {
-                      if(val!==0){
-                        tempTranslate[index] = index * 100 - offset * 100;
-                            offset++;
-                      }
-                    })
-//                    tempTranslate.map((val, index) => translateMatrix[i + index * 4] = val)
-                    for (let e = 0; e < subMatrix.length; e++) {
-                        for (let a = 1 + e; a < subMatrix.length; a++) {
-                            if (subMatrix[a] !== 0) {
-                                if (subMatrix[e] === subMatrix[a]) {
-                                    subMatrix[e] *= 2;
-                                    subMatrix[a] = 0;
-                                    tempTranslate[a] += 100;
-                                    for (a; a < subMatrix.length; a++) {
-                                        if (subMatrix[a] !== 0)
-                                            tempTranslate[a] += 100;
-                                    }
-                                }
-                                a = subMatrix.length;
-                            }
-                        }
-                    }
-                    tempTranslate.reverse()
-                    tempTranslate.map((val, index)=> translateMatrix[i + index*4]=val)
-                    subMatrix = subMatrix.filter((x) => x > 0);
-                    subMatrix.fill(0,2,4);
-                    subMatrix.forEach((val, index) => newMatrix[(3 - index) * 4 + i] = val)
+                    let transformed = this.calcTransform(subMatrix);
+                    transformed.temptranslate.reverse()
+                    transformed.temptranslate.map((val, index) => translateMatrix[i + index * 4] = val)
+                    transformed.submatrix = transformed.submatrix.filter((x) => x > 0);
+                    for (; transformed.submatrix.length < 4;)
+                        transformed.submatrix.push(0);
+                    transformed.submatrix.forEach((val, index) => newMatrix[(3 - index) * 4 + i] = val)
                 }
                 this.setState({ key: 'down' });
                 keypress = true;
             }
             if (event.key === "ArrowLeft") {
                 for (let row = 0; row < 4; row++) {
-                    let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = tempMatrix.slice(row * 4, row * 4 + 4);
-                    let offset = 0;
-                    subMatrix.map((val,index) => {
-                      if(val!==0){
-                        tempTranslate[index] = index * 100 - offset * 100;
-                            offset++;
-                      }
-                    })
-                    //tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
-                    for (let e = 0; e < subMatrix.length; e++) {
-                        for (let a = 1 + e; a < subMatrix.length; a++) {
-                            if (subMatrix[a] !== 0) {
-                                if (subMatrix[e] === subMatrix[a]) {
-                                    subMatrix[e] *= 2;
-                                    subMatrix[a] = 0;
-                                    tempTranslate[a] += 100;
-                                    for (a; a < subMatrix.length; a++) {
-                                        if (subMatrix[a] !== 0)
-                                            tempTranslate[a] += 100;
-                                    }
-                                }
-                                a = subMatrix.length;
-                            }
-                        }
-                    }
-                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
-                    subMatrix = subMatrix.filter((x) => x > 0);
-                    subMatrix.fill(0,2,4);
-                    subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
+                    let transformed = this.calcTransform(subMatrix);
+                    transformed.temptranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
+                    transformed.submatrix = transformed.submatrix.filter((x) => x > 0);
+                    for (; transformed.submatrix.length < 4;)
+                        transformed.submatrix.push(0);
+                    transformed.submatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
                 this.setState({ key: 'left' });
                 keypress = true;
             }
             if (event.key === "ArrowRight") {
                 for (let row = 0; row < 4; row++) {
-                    let tempTranslate = [0, 0, 0, 0]
                     let subMatrix = tempMatrix.slice(row * 4, row * 4 + 4);
-                    let offset = 0;
                     subMatrix.reverse();
-                    subMatrix.map((val,index) => {
-                      if(val!==0){
-                        tempTranslate[index] = index * 100 - offset * 100;
-                            offset++;
-                      }
-                    })
-                    subMatrix.reverse();
-                    for (let e = 0; e < subMatrix.length; e++) {
-                        for (let a = 1 + e; a < subMatrix.length; a++) {
-                            if (subMatrix[a] !== 0) {
-                                if (subMatrix[e] === subMatrix[a]) {
-                                    subMatrix[e] *= 2;
-                                    subMatrix[a] = 0;
-                                    tempTranslate[a] += 100;
-                                    for (a; a < subMatrix.length; a++) {
-                                        if (subMatrix[a] !== 0)
-                                            tempTranslate[a] += 100;
-                                    }
-                                }
-                                a = subMatrix.length;
-                            }
-                        }
-                    }
-                    tempTranslate.reverse();
-                    tempTranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
-                    subMatrix = subMatrix.filter((x) => x > 0);
-                    subMatrix.fill(0,2,4);
-                    subMatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
+                    let transformed = this.calcTransform(subMatrix);
+                    transformed.temptranslate.reverse();
+                    transformed.temptranslate.map((val, index) => translateMatrix[row * 4 + index] = val)
+                    transformed.submatrix = transformed.submatrix.filter((x) => x > 0);
+                    for (; transformed.submatrix.length < 4;)
+                        transformed.submatrix.push(0);
+                    transformed.submatrix.reverse();
+                    transformed.submatrix.forEach((val, index) => newMatrix[row * 4 + index] = val)
                 }
                 this.setState({ key: 'right' });
                 keypress = true;
@@ -204,15 +141,16 @@ class App extends Component {
                     }
                     let same = true;
                     newMatrix.map((val, index) => {
-                      if(val!==tempMatrix[index]) same = false
+                        if (val !== tempMatrix[index]) same = false
                     })
                     if (same === false) {
-                        newMatrix[index] = 2;
+                        const randomNewNumber = Math.floor(Math.random() * 100);
+                        (randomNewNumber < 85) ? newMatrix[index] = 2: newMatrix[index] = 4;
                         this.setState({ translate: translateMatrix, direction: 'up', anim: 1 });
                         //for animation
                         setTimeout(function() {
-                            this.setState({ translate: Array.from(Array(16), () => 0), matrix: newMatrix, anim: 0 });
-                        }.bind(this), animTime*1000);
+                            this.setState({ translate: Array(16).fill(0), matrix: newMatrix, anim: 0 });
+                        }.bind(this), animTime * 1000);
                     }
                 }
             }
