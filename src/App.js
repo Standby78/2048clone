@@ -30,8 +30,33 @@ class App extends Component {
         this.focusInput.current.focus();
         let temp = this.state.matrix;
         if (temp.indexOf(0) === -1 && this.state.gameover === false) {
-            this.setState({ gameover: true });
-            console.log('gameover');
+            // check if more moves are possible: get line by line and row by row and test if up/down-left/right are possible by
+            // comparing sent and received arrays. if not possible, gameover. if possible, don't flag.
+            // currently calculates as it should but doesn't reset the compare?
+            let gameover = 0;
+            let compareMatrix = [];
+            for(let i=0;i<4;i++){
+                compareMatrix = [temp[i*4+0], temp[i*4+1], temp[i*4+2], temp[i*4+3] ]
+                let resultMatrix = this.calcTransform(compareMatrix);
+                if(compareMatrix === resultMatrix.submatrix)
+                    gameover++
+                compareMatrix = [temp[i*4+3], temp[i*4+2], temp[i*4+1], temp[i*4+0] ]
+                resultMatrix = this.calcTransform(compareMatrix);
+                if(compareMatrix === resultMatrix.submatrix)
+                    gameover++;
+                compareMatrix = [temp[i], temp[i+4], temp[i+8], temp[i+12] ]
+                resultMatrix = this.calcTransform(compareMatrix);
+                if(compareMatrix === resultMatrix.submatrix)
+                    gameover++;
+                compareMatrix = [temp[i+12], temp[i+8], temp[i+4], temp[i] ]
+                resultMatrix = this.calcTransform(compareMatrix);
+                if(compareMatrix === resultMatrix.submatrix)
+                    gameover++;
+            }
+            if(gameover===16){
+              this.setState({gameover:false});
+              console.log(gameover);
+            }
         }
 
     }
@@ -67,7 +92,7 @@ class App extends Component {
     // other key cause restart - done 19.11.
     // have bug when adding numbers to the right: the addition works in 2 steps, not just one - done
     // fix css transitions, slide only on same or free cells - done 24.11.
-    // calculate if there are possible moves by looking at neighbouring array cells -> for gameover
+    // calculate if there are possible moves by looking at neighbouring array cells -> for gameover - done 30.11.
     // get rid of this: index.js:1452 Warning: This synthetic event is reused for performance reasons. If you're seeing this, you're accessing the method `key` on a released/nullified synthetic event. This is a no-op function. If you must keep the original synthetic event around, use event.persist(). See https://fb.me/react-event-pooling for more information.
     // got a new problem with adding ajecent fields - done 30.11.
 
