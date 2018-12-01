@@ -16,6 +16,7 @@
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
 .App-link {
   color: #61dafb;
 }
@@ -26,7 +27,7 @@
   height:80vh;
   margin:0 auto;
   align-items:center;
-  max-width:900px;
+  max-width:1200px;
 }
 
 .block{
