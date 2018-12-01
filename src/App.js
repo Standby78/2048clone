@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Block from './block';
-import { throttle, isEqual } from 'lodash';
+import { throttle } from 'lodash';
 
 const animTime = 0.2;
 
@@ -96,10 +96,11 @@ class App extends Component {
     // got a new problem with adding ajecent fields - done 30.11.
 
     key(event) {
+      event.persist();
         if (this.state.gameover === false) {
             let keypress = false;
-            let newMatrix = Array.from(Array(16), () => 0);
-            let translateMatrix = Array.from(Array(16), () => 0);
+            let newMatrix = Array(16).fill(0);
+            let translateMatrix = Array(16).fill(0);
             const tempMatrix = this.state.matrix;
             if (event.key === "ArrowUp") {
                 for (let i = 0; i < 4; i++) {
