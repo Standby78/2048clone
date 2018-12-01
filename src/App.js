@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Block from './block';
-import { throttle } from 'lodash';
+import { throttle, isEqual } from 'lodash';
 
 const animTime = 0.2;
 
@@ -32,30 +32,29 @@ class App extends Component {
         if (temp.indexOf(0) === -1 && this.state.gameover === false) {
             // check if more moves are possible: get line by line and row by row and test if up/down-left/right are possible by
             // comparing sent and received arrays. if not possible, gameover. if possible, don't flag.
-            // currently calculates as it should but doesn't reset the compare?
+            // currently calculates as it should but doesn't reset the compare? - done 1.12.
             let gameover = 0;
             let compareMatrix = [];
             for(let i=0;i<4;i++){
                 compareMatrix = [temp[i*4+0], temp[i*4+1], temp[i*4+2], temp[i*4+3] ]
                 let resultMatrix = this.calcTransform(compareMatrix);
-                if(compareMatrix === resultMatrix.submatrix)
+                if(resultMatrix.temptranslate.reduce((accumulator, currentValue) => accumulator + currentValue)===0)
                     gameover++
                 compareMatrix = [temp[i*4+3], temp[i*4+2], temp[i*4+1], temp[i*4+0] ]
                 resultMatrix = this.calcTransform(compareMatrix);
-                if(compareMatrix === resultMatrix.submatrix)
+                if(resultMatrix.temptranslate.reduce((accumulator, currentValue) => accumulator + currentValue)===0)
                     gameover++;
                 compareMatrix = [temp[i], temp[i+4], temp[i+8], temp[i+12] ]
                 resultMatrix = this.calcTransform(compareMatrix);
-                if(compareMatrix === resultMatrix.submatrix)
+                if(resultMatrix.temptranslate.reduce((accumulator, currentValue) => accumulator + currentValue)===0)
                     gameover++;
                 compareMatrix = [temp[i+12], temp[i+8], temp[i+4], temp[i] ]
                 resultMatrix = this.calcTransform(compareMatrix);
-                if(compareMatrix === resultMatrix.submatrix)
+                if(resultMatrix.temptranslate.reduce((accumulator, currentValue) => accumulator + currentValue)===0)
                     gameover++;
             }
             if(gameover===16){
-              this.setState({gameover:false});
-              console.log(gameover);
+              this.setState({gameover: true});
             }
         }
 
