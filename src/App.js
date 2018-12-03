@@ -22,6 +22,7 @@ class App extends Component {
     componentDidMount() {
         this.focusInput.current.focus();
         let newMatrix = Array(16).fill(0);
+        //let newMatrix = [2,1,6,8,8,8,14,16,18,20,22,24,26,28,30,32]
         newMatrix[Math.floor(Math.random() * 16)] = 2;
         this.setState({ matrix: newMatrix });
 
@@ -30,9 +31,11 @@ class App extends Component {
         this.focusInput.current.focus();
         let temp = this.state.matrix;
         if (temp.indexOf(0) === -1 && this.state.gameover === false) {
+          console.log('testing for gameover')
             // check if more moves are possible: get line by line and row by row and test if up/down-left/right are possible by
             // comparing sent and received arrays. if not possible, gameover. if possible, don't flag.
             // currently calculates as it should but doesn't reset the compare? - done 1.12.
+            // a bug shows up on gameover calculations, check
             let gameover = 0;
             let compareMatrix = [];
             for(let i=0;i<4;i++){
@@ -52,12 +55,12 @@ class App extends Component {
                 resultMatrix = this.calcTransform(compareMatrix);
                 if(resultMatrix.temptranslate.reduce((accumulator, currentValue) => accumulator + currentValue)===0)
                     gameover++;
+                console.log(gameover)
             }
             if(gameover===16){
               this.setState({gameover: true});
             }
         }
-
     }
     calcTransform(subMatrix) {
         let tempTranslate = [0, 0, 0, 0]
@@ -96,7 +99,7 @@ class App extends Component {
     // got a new problem with adding ajecent fields - done 30.11.
 
     key(event) {
-      event.persist();
+      //event.persist();
         if (this.state.gameover === false) {
             let keypress = false;
             let newMatrix = Array(16).fill(0);
