@@ -11,9 +11,11 @@ const Block = (props) => {
 		y='-'+props.translate;
 	else if(props.keyPressed==='down')
 		y=props.translate;
-	let animStyle={ transition: `${props.time}s ease-out`, transform:`translate(${x}%,${y}%)`};
+	let animStyle={ opacity:'1', transition: `${props.time}s ease-out`, transform:`translate(${x}%,${y}%)`};
 	if(props.anim===0)
 		delete animStyle.transition;
+	if(props.value===0)
+		animStyle.opacity='0';
 	return (
 	<div className="block" style={animStyle}>
 		<span className="block-number">{(props.value===0)?'':props.value}</span>

@@ -1,10 +1,3 @@
-.App {
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-}
 
 .App-header {
   background-color: #282c34;
@@ -23,30 +16,38 @@
 .matrix-container{
   display:flex;
   flex-wrap: wrap;
-  width:80vw;
-  height:80vh;
+  width:560px;
+  height:560px;
   margin:0 auto;
   align-items:center;
-  max-width:1200px;
+  background-color:#777777;
+  border:5px solid #777777;
 }
-
-.block{
-  flex: 1 1 20%;
-  border:2px solid black;
-  border-radius:15px;
-  margin:5px;
-  height:25%;
+.grid-container{
+  transform:translateY(-100%);
+  display:flex;
+  flex-wrap: wrap;
+  width:560px;
+  height:560px;
+}
+.grid-block{
+  flex: 1 1 130px;
+  width:130px;
+  height:130px;
   text-align:center;
+  background-color: #bbbbbb;
+  margin:5px;  
+}
+.block{
+  flex: 1 1 130px;
+  width:130px;
+  height:130px;
+  text-align:center;
+  background-color: #dcdcdc;
+  margin:5px;
 }
 .block-number{
-  font-size: 9rem;
+  font-size: 4rem;
   transition: 0.2s ease-in-out;
 }
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+

@@ -185,11 +185,17 @@ class App extends Component {
         }
     }
     render() {
+      const matrixOverlay = this.state.matrix.map(() => 
+          <div className="grid-block">
+            <span className="block-number">&nbsp;</span>
+          </div>)
         let Matrix = this.state.matrix.map((block, index) => <Block time={animTime} value={block} key={index} anim={this.state.anim} keyPressed={this.state.key} translate={this.state.translate[index]}/>);
         return (
             <div tabIndex="0" ref={this.focusInput} className="App" onKeyDown={this.throttledKey}>
         <div className="matrix-container">
-          {Matrix}
+          {matrixOverlay}
+          <div className="grid-container">{Matrix}</div>
+        }
         </div>
         <div style={{zIndex:'1',backgroundColor:'rgb(0,0,0,0.4)', overflow:'auto',position:'fixed', top:'0px', left:'0px', width:'100%', height:'100%', display:(this.state.gameover)?'block':'none'}}>
           <div style={{position:'relative', top:'50%', transform:'translateY(-50%)',textAlign:'center',fontSize:'190px', margin:'auto', width:'80%', backgroundColor:'#dddddd'}}>Game Over</div>
