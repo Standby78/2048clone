@@ -45,6 +45,7 @@
   text-align:center;
   background-color: #dcdcdc;
   margin:5px;
+  line-height:120px;
 }
 .block-number{
   font-size: 4rem;
